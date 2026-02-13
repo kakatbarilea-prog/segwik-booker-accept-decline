@@ -185,6 +185,105 @@
       display:grid;place-items:center;
       color:var(--blue-ink);
     }
+    /* Calendar / times (for Propose Another Date & Time) */
+    .cal{
+      padding:14px;
+      border:1px solid var(--line);
+      border-radius:18px;
+      background:#fff;
+      box-shadow: 0 8px 22px rgba(2,8,23,.06);
+    }
+    .cal-head{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      margin-bottom:10px;
+      font-weight:700;
+    }
+    .cal-head .nav{
+      width:34px;height:34px;border-radius:999px;
+      border:1px solid var(--line);
+      background:#fff;
+      cursor:pointer;
+      display:grid;place-items:center;
+      user-select:none;
+    }
+    .dow{
+      display:grid;
+      grid-template-columns:repeat(7,1fr);
+      gap:6px;
+      padding:6px 2px 10px;
+      color:var(--muted);
+      font-size:12px;
+      text-align:center;
+      font-weight:700;
+    }
+    .days{
+      display:grid;
+      grid-template-columns:repeat(7,1fr);
+      gap:8px;
+      padding:2px;
+    }
+    .day{
+      height:36px;
+      border-radius:999px;
+      border:1px solid transparent;
+      display:grid;
+      place-items:center;
+      cursor:pointer;
+      color:var(--ink);
+      font-weight:700;
+      font-size:13px;
+      background:#fff;
+    }
+    .day.muted{color:#cbd5e1; cursor:not-allowed}
+    .day:hover:not(.muted){background:rgba(20,105,159,.06)}
+    .day.selected{
+      background:rgba(59,130,246,.14);
+      border-color:rgba(59,130,246,.28);
+      color:var(--blue-ink);
+      font-weight:700;
+    }
+
+    .times-head{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      margin:14px 0 10px;
+      color:var(--muted);
+      font-weight:700;
+      font-size:13px;
+    }
+    .times{
+      display:grid;
+      grid-template-columns:repeat(3,1fr);
+      gap:10px;
+    }
+    .time{
+      border:1px solid var(--line);
+      border-radius:10px;
+      padding:10px 10px;
+      text-align:center;
+      background:#fff;
+      cursor:pointer;
+      font-weight:700;
+      font-size:12.5px;
+    }
+    .time.selected{
+      border-color:rgba(59,130,246,.40);
+      background:rgba(59,130,246,.10);
+      color:var(--blue-ink);
+    }
+    .hint{
+      color:var(--muted);
+      font-size:13px;
+      margin-top:10px;
+      line-height:1.45;
+    }
+
+    @media (max-width:420px){
+      .times{grid-template-columns:repeat(2,1fr)}
+    }
 
     /* Detail blocks */
     .info{
@@ -342,6 +441,9 @@
           <div class="pillrow">
             <button class="btn outline-danger" data-go="invite_decline_01" style="flex:1">Decline</button>
           </div>
+          <div class="pillrow">
+            <button class="btn outline-blue" data-go="invite_propose_01" style="flex:1">Propose Another Date & Time</button>
+          </div>
         </div>
       </section>
 
@@ -401,6 +503,117 @@
           <button class="btn outline-blue" data-go="invite_01">Back</button>
         </div>
       </section>
+      <!-- PROPOSE ANOTHER DATE/TIME (Reschedule-like) -->
+      <section class="screen" data-screen="invite_propose_01">
+        <div class="banner" aria-hidden="true">
+          <div class="tag">Virtual 1-1 Connect</div>
+          <div class="dots"><span class="active"></span><span></span><span></span></div>
+        </div>
+
+        <div class="section-title">
+          <div class="icon">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path d="M7 3v3M17 3v3" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>
+              <path d="M4 8h16" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>
+              <path d="M6 21h12a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2Z" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>
+              <path d="M8 13h8" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>
+            </svg>
+          </div>
+          Choose a New Time
+        </div>
+
+        <div class="card" style="padding:14px; margin-bottom:12px">
+          <div style="font-weight:700; font-size:16px; margin-bottom:6px">Current booking</div>
+          <div class="info" style="margin:0">
+            <div class="line"><b>Meeting</b> <span id="paTitle">Virtual 1-1 Connect</span></div>
+            <div class="line"><b>Current</b> <span id="paCurrent">Thu, Feb 19 • 10:15 AM</span></div>
+            <div class="line"><b>Time zone</b> <span id="paTz">America/New_York</span></div>
+          </div>
+        </div>
+
+        <div class="cal">
+          <div class="cal-head">
+            <button class="nav" id="paPrevMonthBtn" aria-label="Previous month">‹</button>
+            <div id="paMonthLabel">February 2026</div>
+            <button class="nav" id="paNextMonthBtn" aria-label="Next month">›</button>
+          </div>
+
+          <div class="dow">
+            <div>Sun</div><div>Mon</div><div>Tue</div><div>Wed</div><div>Thu</div><div>Fri</div><div>Sat</div>
+          </div>
+
+          <div class="days" id="paDaysGrid"></div>
+
+<div class="times-head" id="paTimesHead" style="display:none">
+  <div>Available Times</div>
+  <div id="paSelectedDateLabel">—</div>
+</div>
+
+<div class="times" id="paTimesGrid" style="display:none"></div>
+
+
+          <div class="hint">
+            Pick a day and time, then confirm. You can add a note for the host before submitting.
+          </div>
+        </div>
+
+        <div class="actions">
+          <button class="btn primary wide" id="paNextBtn" disabled style="opacity:.55">
+            Next →
+          </button>
+          <button class="btn outline-blue" data-go="invite_01">Back</button>
+        </div>
+      </section>
+
+      <section class="screen" data-screen="invite_propose_02">
+        <div class="section-title" style="margin-top:2px">
+          <div class="icon">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path d="M21 15a4 4 0 0 1-4 4H8l-5 3V7a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4v8Z" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+          Propose This New Time
+        </div>
+
+        <div class="card" style="padding:14px">
+          <div style="font-weight:700; font-size:16px; margin-bottom:6px">Proposed time</div>
+          <div class="info" style="margin:0">
+            <div class="line"><b>Meeting</b> <span id="pa2Title">Virtual 1-1 Connect</span></div>
+            <div class="line"><b>Selected</b> <span id="pa2When">—</span></div>
+            <div class="line"><b>Time zone</b> <span id="pa2Tz">America/New_York</span></div>
+          </div>
+        </div>
+
+        <div class="form">
+          <div>
+            <label>Note to host (optional)</label>
+            <textarea class="field" id="paNote" placeholder="Anything you’d like to share? (optional)"></textarea>
+          </div>
+        </div>
+
+        <div class="actions">
+          <button class="btn primary wide" id="paConfirmBtn">Send Proposal</button>
+          <button class="btn outline-blue" data-go="invite_propose_01">Back</button>
+        </div>
+      </section>
+
+      <section class="screen" data-screen="invite_propose_done">
+        <div class="successMark">✓</div>
+        <div class="h1">Proposal sent</div>
+        <p class="sub">The host has been notified. You’ll get an update if they accept a new time.</p>
+
+        <div class="card" style="padding:14px">
+          <div style="font-weight:700; font-size:16px; margin-bottom:6px">Proposed meeting</div>
+          <div class="info" style="margin:0">
+            <div class="line"><b>When</b> <span id="paDoneWhen">—</span></div>
+            <div class="line"><b>Meeting</b> <span id="paDoneTitle">Virtual 1-1 Connect</span></div>
+          </div>
+        </div>
+
+        <div class="actions">
+          <button class="btn primary wide" id="paDoneBtn">Done</button>
+        </div>
+      </section>
 
       <!-- DECLINED DONE -->
       <section class="screen" data-screen="invite_decline_done">
@@ -425,8 +638,14 @@
       meetingTitle: "Virtual 1-1 Connect",
       durationMins: 20,
       timeZone: "America/New_York",
-      currentWhenText: "Thu, Feb 19 • 10:15 AM"
+      currentWhenText: "Thu, Feb 19 • 10:15 AM",
+
+      // Propose Another Date & Time (reschedule-like)
+      paSelectedDate: null,
+      paSelectedTime: null,
+      paSelectedWhenText: null
     };
+
 
     /***********************
      * SCREEN NAV
@@ -493,16 +712,214 @@
       // In real use: send declineReason to backend
       show("invite_decline_done");
     });
-
     /***********************
      * DONE (mock exit)
      ***********************/
+    function done(){
+      alert("Meeting Details Updated");
+    }
 
     document.getElementById("doneBtn").addEventListener("click", done);
     document.getElementById("doneBtn2").addEventListener("click", done);
 
+
+    /***********************
+     * PROPOSE ANOTHER DATE/TIME
+     * (Reschedule-like flow copied + IDs prefixed with pa*)
+     ***********************/
+    const paTitleEl = document.getElementById("paTitle");
+    const paCurrentEl = document.getElementById("paCurrent");
+    const paTzEl = document.getElementById("paTz");
+
+    if(paTitleEl) paTitleEl.textContent = state.meetingTitle;
+    if(paCurrentEl) paCurrentEl.textContent = state.currentWhenText;
+    if(paTzEl) paTzEl.textContent = state.timeZone;
+
+    const paMonthLabel = document.getElementById("paMonthLabel");
+    const paDaysGrid = document.getElementById("paDaysGrid");
+    const paTimesGrid = document.getElementById("paTimesGrid");
+    const paSelectedDateLabel = document.getElementById("paSelectedDateLabel");
+    const paNextBtn = document.getElementById("paNextBtn");
+
+    let paViewYear = 2026;
+    let paViewMonth = 1; // 0=Jan, 1=Feb
+
+    const PA_DOW = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
+    const PA_monthNames = ["January","February","March","April","May","June","July","August","September","October","November","December"];
+
+    const paAvailableTimes = [
+      "09:00 AM","09:15 AM","09:30 AM",
+      "09:45 AM","10:00 AM","10:15 AM",
+      "10:30 AM","10:45 AM","11:00 AM",
+      "11:15 AM","11:30 AM","11:45 AM",
+      "12:00 PM","12:15 PM","12:30 PM",
+      "12:45 PM","01:00 PM","01:15 PM",
+      "01:30 PM","01:45 PM","02:00 PM",
+      "02:15 PM","02:30 PM","02:45 PM",
+      "03:00 PM","03:15 PM","03:30 PM",
+      "03:45 PM","04:45 PM"
+    ];
+
+    function paFmtMonthYear(y, m){
+      return `${PA_monthNames[m]} ${y}`;
+    }
+    function paFirstDayOfMonth(y, m){
+      return new Date(y, m, 1).getDay();
+    }
+    function paDaysInMonth(y, m){
+      return new Date(y, m + 1, 0).getDate();
+    }
+    function paFormatSelectedDate(sel){
+      const d = new Date(sel.y, sel.m, sel.day);
+      const dow = PA_DOW[d.getDay()];
+      return `${dow}, ${PA_monthNames[sel.m]} ${sel.day}, ${sel.y}`;
+    }
+
+    function paUpdateNext(){
+      if(!paNextBtn) return;
+      const ready = !!(state.paSelectedDate && state.paSelectedTime);
+      paNextBtn.disabled = !ready;
+      paNextBtn.style.opacity = ready ? "1" : ".55";
+    }
+
+    function paRenderTimes(){
+      if(!paTimesGrid || !paSelectedDateLabel) return;
+
+      paTimesGrid.innerHTML = "";
+      const hasDate = !!state.paSelectedDate;
+
+      const paTimesHead = document.getElementById("paTimesHead");
+      if(!hasDate){
+        if(paTimesHead) paTimesHead.style.display = "none";
+        paTimesGrid.style.display = "none";
+        paSelectedDateLabel.textContent = "—";
+        paUpdateNext();
+        return;
+      }
+
+      if(paTimesHead) paTimesHead.style.display = "flex";
+      paTimesGrid.style.display = "grid";
+      paSelectedDateLabel.textContent = paFormatSelectedDate(state.paSelectedDate);
+
+      paAvailableTimes.slice(0, 18).forEach((t) => {
+        const b = document.createElement("button");
+        b.type = "button";
+        b.className = "time";
+        b.textContent = t;
+
+        b.addEventListener("click", () => {
+          state.paSelectedTime = t;
+          state.paSelectedWhenText = `${paFormatSelectedDate(state.paSelectedDate)} • ${t}`;
+          paRenderTimes();
+        });
+
+        if(state.paSelectedTime === t) b.classList.add("selected");
+        paTimesGrid.appendChild(b);
+      });
+
+      paUpdateNext();
+    }
+
+    function paRenderCalendar(){
+      if(!paMonthLabel || !paDaysGrid) return;
+
+      paMonthLabel.textContent = paFmtMonthYear(paViewYear, paViewMonth);
+      paDaysGrid.innerHTML = "";
+
+      const firstDow = paFirstDayOfMonth(paViewYear, paViewMonth);
+      const dim = paDaysInMonth(paViewYear, paViewMonth);
+
+      for(let i=0; i<firstDow; i++){
+        const d = document.createElement("div");
+        d.className = "day muted";
+        d.textContent = "";
+        paDaysGrid.appendChild(d);
+      }
+
+      for(let day=1; day<=dim; day++){
+        const d = document.createElement("div");
+        d.className = "day";
+        d.textContent = day;
+
+        const dateObj = new Date(paViewYear, paViewMonth, day);
+        const dow = dateObj.getDay();
+        const isWeekend = (dow === 0 || dow === 6);
+        const isPastLike = (paViewYear === 2026 && paViewMonth === 1 && day < 12);
+        const disabled = isWeekend || isPastLike;
+
+        if(disabled){
+          d.classList.add("muted");
+        }else{
+          d.addEventListener("click", () => {
+            state.paSelectedDate = {y: paViewYear, m: paViewMonth, day};
+            state.paSelectedTime = null;
+            state.paSelectedWhenText = null;
+            paRenderCalendar();
+          });
+        }
+
+        if(state.paSelectedDate){
+          const {y,m,day:sd} = state.paSelectedDate;
+          if(y===paViewYear && m===paViewMonth && sd===day) d.classList.add("selected");
+        }
+
+        paDaysGrid.appendChild(d);
+      }
+
+      paRenderTimes();
+    }
+
+    const paPrevMonthBtn = document.getElementById("paPrevMonthBtn");
+    const paNextMonthBtn = document.getElementById("paNextMonthBtn");
+
+    if(paPrevMonthBtn){
+      paPrevMonthBtn.addEventListener("click", () => {
+        paViewMonth -= 1;
+        if(paViewMonth < 0){ paViewMonth = 11; paViewYear -= 1; }
+        paRenderCalendar();
+      });
+    }
+
+    if(paNextMonthBtn){
+      paNextMonthBtn.addEventListener("click", () => {
+        paViewMonth += 1;
+        if(paViewMonth > 11){ paViewMonth = 0; paViewYear += 1; }
+        paRenderCalendar();
+      });
+    }
+
+    if(paNextBtn){
+      paNextBtn.addEventListener("click", () => {
+        if(!(state.paSelectedDate && state.paSelectedTime)) return;
+
+        document.getElementById("pa2Title").textContent = state.meetingTitle;
+        document.getElementById("pa2When").textContent = state.paSelectedWhenText;
+        document.getElementById("pa2Tz").textContent = state.timeZone;
+
+        show("invite_propose_02");
+      });
+    }
+
+    const paConfirmBtn = document.getElementById("paConfirmBtn");
+    if(paConfirmBtn){
+      paConfirmBtn.addEventListener("click", () => {
+        document.getElementById("paDoneWhen").textContent = state.paSelectedWhenText;
+        document.getElementById("paDoneTitle").textContent = state.meetingTitle;
+        show("invite_propose_done");
+      });
+    }
+
+    const paDoneBtn = document.getElementById("paDoneBtn");
+    if(paDoneBtn){
+      paDoneBtn.addEventListener("click", done);
+    }
+
+    // Render propose calendar once on load
+    paRenderCalendar();
+
     // Initial back visibility
     backBtn.style.visibility = "hidden";
+
   </script>
 </body>
 </html>
